@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alcohols, Phenols & Ethers — Specimen Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
+
+  :root{
+    --bg: #0e130f;
+    --bg-vignette: #060907;
+    --paper: #eef1e6;
+    --paper-shade: #dfe4d3;
+    --ink: #1c2418;
+    --ink-soft: #4a5443;
+    --flask: #4f9d69;
+    --flask-bright: #7cc999;
+    --amber: #e2a13d;
+    --amber-soft: #c9893a;
+    --line: rgba(238,241,230,0.14);
+    --focus: #7cc999;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'Source Serif 4', serif;
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- Background video (local mp4, no external embed) ---------- */
+  #video-layer{
+    position:fixed; inset:0; z-index:0;
+    background:#000;
+    overflow:hidden;
+  }
+  #bg-video{
+    position:absolute; top:50%; left:50%;
+    min-width:100%; min-height:100%;
+    width:auto; height:auto;
+    transform:translate(-50%,-50%);
+    object-fit:cover;
+    filter: saturate(0.9) brightness(0.55);
+  }
+  #video-scrim{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(6,9,7,0.25) 0%, rgba(6,9,7,0.75) 62%, rgba(6,9,7,0.94) 100%);
+  }
+  #sound-toggle{
+    position:fixed; top:18px; right:18px; z-index:30;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    background:rgba(14,19,15,0.7);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:9px 14px;
+    border-radius:3px;
+    cursor:pointer;
+    backdrop-filter:blur(6px);
+    display:flex; align-items:center; gap:8px;
+    transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  #sound-toggle:hover{ border-color:var(--flask-bright); background:rgba(14,19,15,0.9); }
+  #sound-toggle:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  #sound-toggle .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--amber);
+  }
+  #sound-toggle.on .dot{ background:var(--flask-bright); }
+
+  /* ---------- Start gate (required for autoplay-with-sound) ---------- */
+  #start-gate{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(6,9,7,0.92);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    backdrop-filter:blur(4px);
+  }
+  #start-gate.hidden{ display:none; }
+  #start-gate-inner{ max-width:380px; padding:0 20px; }
+  #start-gate .eyebrow{ margin-bottom:14px; }
+  #start-gate h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px; margin:0 0 10px; color:var(--paper);
+  }
+  #start-gate p{
+    font-size:14px; color:rgba(238,241,230,0.66);
+    margin:0 0 24px; line-height:1.5;
+  }
+  #start-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px; letter-spacing:0.05em; font-weight:600;
+    background:var(--flask); border:1px solid var(--flask); color:#0e130f;
+    padding:13px 26px; border-radius:5px; cursor:pointer;
+    transition:background 0.18s ease;
+  }
+  #start-btn:hover{ background:var(--flask-bright); }
+  #start-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* ---------- Layout ---------- */
+  main{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center;
+    padding:34px 18px 60px;
+  }
+
+  header.masthead{
+    width:100%; max-width:760px;
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.24em; text-transform:uppercase;
+    color:var(--flask-bright);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:clamp(22px, 4vw, 32px);
+    letter-spacing:-0.01em;
+    margin:0 0 6px;
+    color:var(--paper);
+  }
+  .subhead{
+    font-size:14.5px; color:rgba(238,241,230,0.62);
+    margin:0; font-family:'Source Serif 4', serif; font-style:italic;
+  }
+
+  /* ---------- Category rack ---------- */
+  #category-rack{
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    max-width:820px; margin:20px 0 26px;
+  }
+  .cat-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.05em;
+    padding:7px 13px;
+    border:1px solid var(--line);
+    background:rgba(14,19,15,0.55);
+    color:rgba(238,241,230,0.78);
+    border-radius:20px;
+    cursor:pointer;
+    transition:all 0.18s ease;
+    white-space:nowrap;
+  }
+  .cat-pill:hover{ border-color:var(--flask-bright); color:var(--paper); }
+  .cat-pill:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .cat-pill.active{
+    background:var(--flask);
+    border-color:var(--flask);
+    color:#0e130f;
+    font-weight:600;
+  }
+
+  /* ---------- Progress ---------- */
+  #progress-row{
+    display:flex; align-items:center; gap:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:rgba(238,241,230,0.65);
+    margin-bottom:16px;
+  }
+  #progress-track{
+    width:180px; height:4px; background:rgba(238,241,230,0.14);
+    border-radius:2px; overflow:hidden;
+  }
+  #progress-fill{
+    height:100%; background:var(--flask-bright); width:0%;
+    transition:width 0.25s ease;
+  }
+
+  /* ---------- Card stage ---------- */
+  #stage{
+    position:relative;
+    width:100%; max-width:560px;
+    perspective:1800px;
+  }
+  #card{
+    position:relative;
+    width:100%; aspect-ratio: 5 / 3.4;
+    min-height:280px;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform 0.55s cubic-bezier(.4,.2,.2,1);
+  }
+  #card:focus-visible{ outline:2px solid var(--focus); outline-offset:4px; }
+  #card.flipped{ transform:rotateY(180deg); }
+
+  .face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    border-radius:8px;
+    background:var(--paper);
+    color:var(--ink);
+    padding:30px 32px 26px;
+    display:flex; flex-direction:column;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.55), 0 2px 0 rgba(0,0,0,0.2);
+    border:1px solid rgba(0,0,0,0.06);
+  }
+  .face::before{
+    content:'';
+    position:absolute; left:0; top:14px; bottom:14px; width:3px;
+    background:var(--flask);
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-shade); }
+  .face.back::before{ background:var(--amber); }
+
+  .specimen-label{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--ink-soft);
+    padding-bottom:12px; margin-bottom:16px;
+    border-bottom:1px dashed rgba(28,36,24,0.22);
+  }
+  .specimen-id{ color:var(--flask); font-weight:600; }
+  .face.back .specimen-id{ color:var(--amber-soft); }
+
+  .face-kicker{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--flask); margin-bottom:10px; font-weight:600;
+  }
+  .face.back .face-kicker{ color:var(--amber-soft); }
+
+  .face-body{
+    font-size:clamp(16px, 2.6vw, 19px);
+    line-height:1.45;
+    flex:1;
+    display:flex; align-items:center;
+  }
+  .face-body p{ margin:0; }
+
+  .face-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px; letter-spacing:0.06em;
+    color:var(--ink-soft); opacity:0.6;
+    text-align:right;
+  }
+
+  /* ---------- Controls ---------- */
+  #controls{
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; margin-top:24px;
+  }
+  .ctl-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:0.05em;
+    background:rgba(14,19,15,0.55);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:11px 18px;
+    border-radius:5px;
+    cursor:pointer;
+    transition:all 0.18s ease;
+    display:flex; align-items:center; gap:7px;
+  }
+  .ctl-btn:hover{ border-color:var(--flask-bright); background:rgba(79,157,105,0.16); }
+  .ctl-btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .ctl-btn.primary{
+    background:var(--flask); border-color:var(--flask); color:#0e130f; font-weight:600;
+  }
+  .ctl-btn.primary:hover{ background:var(--flask-bright); border-color:var(--flask-bright); }
+  .ctl-btn svg{ width:13px; height:13px; }
+
+  #keyhints{
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; color:rgba(238,241,230,0.42);
+    letter-spacing:0.03em; text-align:center;
+  }
+  #keyhints kbd{
+    background:rgba(238,241,230,0.09);
+    border:1px solid rgba(238,241,230,0.18);
+    padding:1px 5px; border-radius:3px;
+    font-family:inherit;
+  }
+
+  @media (max-width: 480px){
+    .face{ padding:22px 20px 18px; }
+    #controls{ flex-wrap:wrap; gap:10px; }
+    .ctl-btn{ padding:10px 14px; font-size:11px; }
+    #video-frame-hide{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="video-layer">
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="background.mp4" type="video/mp4">
+  </video>
+  <div id="video-scrim"></div>
+</div>
+
+<button id="sound-toggle" aria-pressed="false">
+  <span class="dot"></span>
+  <span id="sound-label">Sound off</span>
+</button>
+
+<div id="start-gate">
+  <div id="start-gate-inner">
+    <p class="eyebrow">Before we begin</p>
+    <h2>Start deck with sound</h2>
+    <p>Browsers block videos from autoplaying with sound. Click once to start the background video with audio, then study away.</p>
+    <button id="start-btn">▶ Start with sound</button>
+  </div>
+</div>
+
+<main>
+  <header class="masthead">
+    <p class="eyebrow">Organic Chemistry · Specimen Deck 07</p>
+    <h1>Alcohols, Phenols &amp; Ethers</h1>
+    <p class="subhead">58 samples catalogued for recall. Flip to reveal, sort by class, shuffle the shelf.</p>
+  </header>
+
+  <div id="category-rack" role="group" aria-label="Filter by category"></div>
+
+  <div id="progress-row">
+    <span id="progress-text">Sample 1 / 58</span>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+
+  <div id="stage">
+    <div id="card" tabindex="0" role="button" aria-label="Flashcard, press space or enter to flip">
+      <div class="face front">
+        <div class="specimen-label">
+          <span id="front-cat">—</span>
+          <span class="specimen-id" id="front-id">—</span>
+        </div>
+        <div class="face-kicker">Question</div>
+        <div class="face-body"><p id="front-text"></p></div>
+        <div class="face-hint">tap to reveal →</div>
+      </div>
+      <div class="face back">
+        <div class="specimen-label">
+          <span id="back-cat">—</span>
+          <span class="specimen-id" id="back-id">—</span>
+        </div>
+        <div class="face-kicker">Answer</div>
+        <div class="face-body"><p id="back-text"></p></div>
+        <div class="face-hint">tap to flip back →</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button class="ctl-btn" id="btn-prev" aria-label="Previous card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      Prev
+    </button>
+    <button class="ctl-btn primary" id="btn-flip">Flip</button>
+    <button class="ctl-btn" id="btn-next" aria-label="Next card">
+      Next
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <button class="ctl-btn" id="btn-shuffle" aria-label="Shuffle deck">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3l4 4-4 4M17 21l4-4-4-4M3 7h4l7 10h6M3 17h4l3-4.3"/></svg>
+      Shuffle
+    </button>
+  </div>
+
+  <p id="keyhints">
+    <kbd>space</kbd> flip · <kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigate · <kbd>s</kbd> shuffle
+  </p>
+</main>
+
+<script>
+const CARDS = [
+  {cat:"Classification", id:"CLS-01", q:"How are alcohols and phenols formed from hydrocarbons?", a:"By replacing one or more H atoms of a hydrocarbon (aliphatic for alcohols, aromatic for phenols) with an -OH group."},
+  {cat:"Classification", id:"CLS-02", q:"Where does the -OH attach in an alcohol vs. a phenol?", a:"Alcohol: -OH on an aliphatic (sp3) carbon. Phenol: -OH directly on an aromatic ring carbon."},
+  {cat:"Classification", id:"CLS-03", q:"How are alcohols classified by number of -OH groups?", a:"Monohydric, dihydric, trihydric, or polyhydric."},
+  {cat:"Classification", id:"CLS-04", q:"Define a primary (1°) alcohol.", a:"-OH attached to a primary carbon atom."},
+  {cat:"Classification", id:"CLS-05", q:"Define a secondary (2°) alcohol.", a:"-OH attached to a secondary carbon atom."},
+  {cat:"Classification", id:"CLS-06", q:"Define a tertiary (3°) alcohol.", a:"-OH attached to a tertiary carbon atom."},
+  {cat:"Classification", id:"CLS-07", q:"What is an allylic alcohol?", a:"-OH on an sp3 carbon that sits next to a C=C double bond."},
+  {cat:"Classification", id:"CLS-08", q:"What is a benzylic alcohol?", a:"-OH on an sp3 carbon directly attached to an aromatic ring."},
+  {cat:"Classification", id:"CLS-09", q:"What is a vinylic alcohol?", a:"-OH bonded directly to a carbon of a C=C double bond (the vinylic carbon itself)."},
+  {cat:"Classification", id:"CLS-10", q:"How are ethers classified?", a:"Simple (symmetrical) — same groups on both sides; mixed (unsymmetrical) — different groups."},
+  {cat:"Classification", id:"CLS-11", q:"What is the IUPAC suffix for alcohols?", a:"'-ol', replacing the final 'e' of the parent alkane name."},
+  {cat:"Classification", id:"CLS-12", q:"How are polyhydric alcohols named (IUPAC)?", a:"Keep the alkane's 'e' and add '-diol', '-triol', etc., with locants for each -OH."},
+  {cat:"Classification", id:"CLS-13", q:"IUPAC name for glycerol?", a:"Propane-1,2,3-triol."},
+  {cat:"Classification", id:"CLS-14", q:"Common names for 1,2-benzenediol and 1,4-benzenediol?", a:"Catechol and hydroquinone (quinol), respectively."},
+  {cat:"Classification", id:"CLS-15", q:"How are ethers named (IUPAC)?", a:"As alkoxyalkanes — the larger alkyl group is the parent chain, the smaller becomes the 'alkoxy' prefix."},
+
+  {cat:"Structure & Bonding", id:"STR-01", q:"What is the hybridisation of C and O in alcohols?", a:"Both carbon and oxygen are sp3 hybridised."},
+  {cat:"Structure & Bonding", id:"STR-02", q:"Why is methanol's C-O-H angle (108.9°) less than tetrahedral?", a:"Repulsion from oxygen's two lone pairs compresses the angle."},
+  {cat:"Structure & Bonding", id:"STR-03", q:"Why is phenol's C-O bond (136 pm) shorter than methanol's (142 pm)?", a:"Partial double-bond character from conjugation with the ring, plus the sp2 carbon attached to O."},
+  {cat:"Structure & Bonding", id:"STR-04", q:"Why is methoxymethane's C-O-C angle (111.7°) larger than tetrahedral?", a:"Steric repulsion between the two bulky alkyl groups pushes the angle open."},
+
+  {cat:"Prep · Alcohols", id:"PRE-01", q:"What rule governs acid-catalysed hydration of unsymmetrical alkenes?", a:"Markovnikov's rule."},
+  {cat:"Prep · Alcohols", id:"PRE-02", q:"First step in acid-catalysed alkene hydration?", a:"Electrophilic attack of H3O+ protonates the alkene, forming a carbocation."},
+  {cat:"Prep · Alcohols", id:"PRE-03", q:"Reagents for hydroboration-oxidation?", a:"Diborane (BH3 or B2H6), then alkaline hydrogen peroxide (H2O2/OH-)."},
+  {cat:"Prep · Alcohols", id:"PRE-04", q:"Regioselectivity of hydroboration-oxidation?", a:"Anti-Markovnikov: -OH ends up on the carbon that already had more hydrogens."},
+  {cat:"Prep · Alcohols", id:"PRE-05", q:"What do aldehydes and ketones give on reduction?", a:"Aldehydes → primary alcohols; ketones → secondary alcohols."},
+  {cat:"Prep · Alcohols", id:"PRE-06", q:"Which strong reducing agent turns carboxylic acids straight into primary alcohols?", a:"Lithium aluminium hydride (LiAlH4)."},
+  {cat:"Prep · Alcohols", id:"PRE-07", q:"Commercial route from carboxylic acids to alcohols?", a:"Esterify first, then catalytic hydrogenation of the ester."},
+  {cat:"Prep · Alcohols", id:"PRE-08", q:"Grignard reagent + methanal → ?", a:"A primary alcohol."},
+  {cat:"Prep · Alcohols", id:"PRE-09", q:"Grignard reagent + any other aldehyde → ?", a:"A secondary alcohol."},
+  {cat:"Prep · Alcohols", id:"PRE-10", q:"Grignard reagent + ketone → ?", a:"A tertiary alcohol."},
+
+  {cat:"Prep · Phenols", id:"PHP-01", q:"Describe Dow's process for phenol.", a:"Chlorobenzene fused with NaOH at 623 K and 320 atm, then the product is acidified."},
+  {cat:"Prep · Phenols", id:"PHP-02", q:"How is phenol made from benzene sulphonic acid?", a:"Sulphonate benzene, fuse with molten NaOH to get sodium phenoxide, then acidify."},
+  {cat:"Prep · Phenols", id:"PHP-03", q:"How is phenol made from aniline?", a:"Diazotise aniline with NaNO2/HCl at 273–278 K, then hydrolyse the diazonium salt by warming with water."},
+  {cat:"Prep · Phenols", id:"PHP-04", q:"Most common commercial method for phenol?", a:"The cumene (isopropylbenzene) process."},
+  {cat:"Prep · Phenols", id:"PHP-05", q:"Products of the cumene process?", a:"Phenol and acetone."},
+
+  {cat:"Physical Properties", id:"PHY-01", q:"How do alcohol boiling points change with carbon count?", a:"They rise, since van der Waals forces increase with chain length."},
+  {cat:"Physical Properties", id:"PHY-02", q:"How does branching affect boiling point?", a:"Boiling point falls — branching lowers surface area, so van der Waals forces weaken."},
+  {cat:"Physical Properties", id:"PHY-03", q:"Why do alcohols boil hotter than hydrocarbons of similar mass?", a:"Intermolecular hydrogen bonding between -OH groups."},
+  {cat:"Physical Properties", id:"PHY-04", q:"Why are small alcohols water-soluble?", a:"They can hydrogen-bond with water molecules."},
+  {cat:"Physical Properties", id:"PHY-05", q:"Why does solubility drop as the alkyl group grows?", a:"The hydrophobic (non-polar) portion of the molecule dominates more of it."},
+
+  {cat:"Acidity", id:"ACD-01", q:"How do alcohols react with active metals like sodium?", a:"As Bronsted acids — they release H2 gas and form metal alkoxides."},
+  {cat:"Acidity", id:"ACD-02", q:"Acidic strength order: 1°, 2°, 3° alcohols?", a:"Primary > Secondary > Tertiary."},
+  {cat:"Acidity", id:"ACD-03", q:"Why are alcohols weaker acids than water?", a:"RO- + H2O → ROH + OH- proceeds, showing water is the better proton donor of the two."},
+  {cat:"Acidity", id:"ACD-04", q:"Why are phenols stronger acids than alcohols?", a:"The phenoxide ion is stabilised — its negative charge delocalises into the ring by resonance."},
+  {cat:"Acidity", id:"ACD-05", q:"Effect of electron-withdrawing groups (EWG) on phenol acidity?", a:"They raise acidity by helping delocalise the negative charge further."},
+  {cat:"Acidity", id:"ACD-06", q:"Where do nitro groups boost phenol acidity most?", a:"At the ortho and para positions."},
+  {cat:"Acidity", id:"ACD-07", q:"Effect of electron-releasing groups (e.g. alkyls) on phenol acidity?", a:"They lower acid strength — cresols, for instance, are less acidic than phenol."},
+
+  {cat:"Other Reactions", id:"RXN-01", q:"Salicylic acid + acetic anhydride → ?", a:"Aspirin (acetylsalicylic acid)."},
+  {cat:"Other Reactions", id:"RXN-02", q:"What is the Lucas test used for?", a:"Distinguishing 1°, 2°, and 3° alcohols by how fast turbidity (cloudiness) forms."},
+  {cat:"Other Reactions", id:"RXN-03", q:"Which alcohol class reacts fastest in the Lucas test?", a:"Tertiary — turbidity appears immediately."},
+  {cat:"Other Reactions", id:"RXN-04", q:"Relative ease of dehydration of alcohols?", a:"Tertiary > Secondary > Primary."},
+  {cat:"Other Reactions", id:"RXN-05", q:"Preferred reagent to stop oxidation at the aldehyde stage for 1° alcohols?", a:"Pyridinium chlorochromate (PCC)."},
+  {cat:"Other Reactions", id:"RXN-06", q:"Tertiary alcohol + copper at 573 K → ?", a:"Dehydration to an alkene."},
+  {cat:"Other Reactions", id:"RXN-07", q:"Product of Kolbe's reaction?", a:"Salicylic acid (2-hydroxybenzoic acid)."},
+  {cat:"Other Reactions", id:"RXN-08", q:"What is the Reimer-Tiemann reaction?", a:"Phenol + chloroform + aqueous NaOH installs a -CHO group at the ortho position, giving salicylaldehyde."},
+  {cat:"Other Reactions", id:"RXN-09", q:"Phenol + zinc dust, heated → ?", a:"Reduction to benzene."},
+  {cat:"Other Reactions", id:"RXN-10", q:"Phenol oxidised with chromic acid → ?", a:"Benzoquinone."},
+
+  {cat:"Commercial", id:"COM-01", q:"What is 'wood spirit'?", a:"Methanol (CH3OH) — historically obtained by destructive distillation of wood."},
+  {cat:"Commercial", id:"COM-02", q:"What is denatured alcohol?", a:"Ethanol made undrinkable by adding copper sulphate (colour) and pyridine (foul smell)."},
+];
+
+const CATEGORIES = ["All", ...Array.from(new Set(CARDS.map(c=>c.cat)))];
+
+let deck = CARDS.map((c,i)=>i);
+let pos = 0;
+let activeCat = "All";
+
+const $ = sel => document.querySelector(sel);
+const rack = $("#category-rack");
+const cardEl = $("#card");
+const progressText = $("#progress-text");
+const progressFill = $("#progress-fill");
+
+function buildRack(){
+  rack.innerHTML = "";
+  CATEGORIES.forEach(cat=>{
+    const btn = document.createElement("button");
+    btn.className = "cat-pill" + (cat===activeCat ? " active":"");
+    btn.textContent = cat + (cat==="All" ? "" : ` (${CARDS.filter(c=>c.cat===cat).length})`);
+    btn.setAttribute("aria-pressed", cat===activeCat ? "true":"false");
+    btn.addEventListener("click", ()=>{
+      activeCat = cat;
+      applyFilter();
+      buildRack();
+    });
+    rack.appendChild(btn);
+  });
+}
+
+function applyFilter(){
+  deck = CARDS
+    .map((c,i)=>i)
+    .filter(i => activeCat==="All" || CARDS[i].cat===activeCat);
+  pos = 0;
+  cardEl.classList.remove("flipped");
+  render();
+}
+
+function shuffle(){
+  for(let i=deck.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]] = [deck[j],deck[i]];
+  }
+  pos = 0;
+  cardEl.classList.remove("flipped");
+  render();
+}
+
+function render(){
+  const card = CARDS[deck[pos]];
+  $("#front-cat").textContent = card.cat;
+  $("#front-id").textContent = card.id;
+  $("#front-text").textContent = card.q;
+  $("#back-cat").textContent = card.cat;
+  $("#back-id").textContent = card.id;
+  $("#back-text").textContent = card.a;
+  progressText.textContent = `Sample ${pos+1} / ${deck.length}`;
+  progressFill.style.width = `${((pos+1)/deck.length)*100}%`;
+}
+
+function flip(){ cardEl.classList.toggle("flipped"); }
+function next(){
+  pos = (pos+1) % deck.length;
+  cardEl.classList.remove("flipped");
+  render();
+}
+function prev(){
+  pos = (pos-1+deck.length) % deck.length;
+  cardEl.classList.remove("flipped");
+  render();
+}
+
+cardEl.addEventListener("click", flip);
+cardEl.addEventListener("keydown", e=>{
+  if(e.key===" " || e.key==="Enter"){ e.preventDefault(); flip(); }
+});
+$("#btn-flip").addEventListener("click", flip);
+$("#btn-next").addEventListener("click", next);
+$("#btn-prev").addEventListener("click", prev);
+$("#btn-shuffle").addEventListener("click", shuffle);
+
+document.addEventListener("keydown", e=>{
+  if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if(e.key==="ArrowRight"){ next(); }
+  else if(e.key==="ArrowLeft"){ prev(); }
+  else if(e.key.toLowerCase()==="s"){ shuffle(); }
+  else if(e.key===" " && document.activeElement !== cardEl){ e.preventDefault(); flip(); }
+});
+
+buildRack();
+applyFilter();
+
+/* ---------- Sound toggle for local background video ---------- */
+const soundBtn = $("#sound-toggle");
+const soundLabel = $("#sound-label");
+const bgVideo = $("#bg-video");
+const startGate = $("#start-gate");
+const startBtn = $("#start-btn");
+let soundOn = false;
+
+function setSound(on){
+  soundOn = on;
+  bgVideo.muted = !on;
+  if(on){ bgVideo.play().catch(()=>{}); }
+  soundBtn.classList.toggle("on", soundOn);
+  soundBtn.setAttribute("aria-pressed", String(soundOn));
+  soundLabel.textContent = soundOn ? "Sound on" : "Sound off";
+}
+
+startBtn.addEventListener("click", ()=>{
+  setSound(true);
+  startGate.classList.add("hidden");
+});
+
+soundBtn.addEventListener("click", ()=> setSound(!soundOn));
+</script>
+</body>
+</html>
